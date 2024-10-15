@@ -78,7 +78,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
                 <label htmlFor="date" className="block mb-1">
                     Date
                 </label>
-                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD" value={data.date} onChange={(date, dateString) => setData({ ...data, date: dateString })} />
+                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD" value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
             </div>
 
             <div className="mb-3">

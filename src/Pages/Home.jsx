@@ -1,10 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Card, Col, message, Row, Select, Skeleton } from "antd";
+import { Card, Col, message, Modal, Row, Select, Skeleton } from "antd";
 import TableTransaction from "../Component/TableTransaction";
 import FormTransaction from "../Component/FormTransaction";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PieChart from "../Component/PieChart";
+import FormCreateAccount from "../Component/FormCreateAccount";
+message.config({
+    maxCount: 2,
+});
 
 const Home = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -16,6 +20,8 @@ const Home = () => {
     const [selectedAccount, setSelectedAccount] = useState("");
     const [transactionData, setTransactionData] = useState([]);
     const [stored, setStored] = useState(null);
+
+    const [modalCreateAccount, setModalCreateAccount] = useState(false);
 
     const handleTransaction = (data) => {
         setStored(data);
@@ -38,6 +44,7 @@ const Home = () => {
             const data = await response.json();
             if (data.data.length === 0) {
                 message.error("No account found. Please create an account first.");
+                setSearchParams({ createAccount: true });
                 setLoadingAccount(false);
                 return;
             }
@@ -70,6 +77,7 @@ const Home = () => {
 
     useEffect(() => {
         const accountId = searchParams.get("accountId");
+
         if (accountId) {
             getAccount().then((res) => {
                 const accounts = res.data;
@@ -86,7 +94,12 @@ const Home = () => {
                 setLoadingAccount(false);
             });
         }
-    }, [setSearchParams, stored]);
+
+        const createAccount = searchParams.get("createAccount");
+        if (createAccount) {
+            setModalCreateAccount(true);
+        }
+    }, [searchParams, stored]);
 
     useEffect(() => {
         getCategories();
@@ -118,6 +131,19 @@ const Home = () => {
 
     return (
         <>
+            <Modal
+                title="Create New Account"
+                open={modalCreateAccount}
+                okButtonProps={{ style: { display: "none" } }}
+                cancelButtonProps={{ style: { display: "none" } }}
+                onCancel={() => {
+                    setModalCreateAccount(false);
+                    setSearchParams({});
+                }}
+            >
+                <FormCreateAccount closeModal={() => setModalCreateAccount(false)} />
+            </Modal>
+
             <div className="bg-slate-100 min-h-screen px-4">
                 <Row>
                     <Col span={24} className="gutter-row p-2">
