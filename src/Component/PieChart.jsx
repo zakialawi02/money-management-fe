@@ -2,28 +2,38 @@
 import ReactECharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 
-const PieChart = ({ data = [] }) => {
+const PieChart = ({ data = [], chartMode = true }) => {
     const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
-        // const A = data.map((item) => ({
-        //     value: item.amount,
-        //     name: item.type,
-        //     itemStyle: {
-        //         color: item.type === "income" ? "#4cb362" : "#b24d4d",
-        //     },
-        // }));
-        // setChartData(A);
+        let A = [];
+        if (chartMode) {
+            const mergedData = data.reduce((acc, item) => {
+                const existingItem = acc.find((el) => el.type === item.type);
+                if (existingItem) {
+                    existingItem.amount += item.amount;
+                } else {
+                    acc.push({ type: item.type, amount: item.amount });
+                }
+                return acc;
+            }, []);
 
-        const A = data.map((item) => ({
-            value: item.amount,
-            name: item.category.name,
-            // itemStyle: {
-            //     color: item.type === "income" ? "#4cb362" : "#b24d4d",
-            // },
-        }));
+            A = mergedData.map((item) => ({
+                value: item.amount,
+                name: item.type,
+                itemStyle: {
+                    color: item.type === "income" ? "#008028" : "#ff5a5b",
+                },
+            }));
+        } else {
+            A = data.map((item) => ({
+                value: item.amount,
+                name: item.category.name,
+            }));
+        }
+
         setChartData(A);
-    }, [data]);
+    }, [data, chartMode]);
 
     const chartOption = {
         tooltip: {
@@ -31,7 +41,7 @@ const PieChart = ({ data = [] }) => {
         },
         series: [
             {
-                name: "Type",
+                name: chartMode ? "Type" : "Category",
                 type: "pie",
                 radius: "50%",
                 center: ["50%", "50%"],

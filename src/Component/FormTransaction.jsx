@@ -5,7 +5,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const FormTransaction = ({ transactionCategory, stored = null }) => {
+const FormTransaction = ({ transactionCategory, executed = null }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [category, setCategory] = useState([]);
     const [sending, setSending] = useState(false);
@@ -48,7 +48,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
                         transactions_category_id: "",
                     });
 
-                    stored(data.transaction.id);
+                    executed(data.transaction.id);
                 } else {
                     message.error(data.message);
                 }
@@ -63,14 +63,24 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
     };
 
     useEffect(() => {
+        let filteredArray;
+        if (data.type === "income") {
+            filteredArray = transactionCategory.filter(function (item) {
+                return item.name !== "Uang Masuk";
+            });
+        } else if (data.type === "expense") {
+            filteredArray = transactionCategory.filter(function (item) {
+                return item.name !== "Uang Keluar";
+            });
+        }
         setCategory(
-            transactionCategory.map((item) => ({
+            filteredArray.map((item) => ({
                 key: item.id,
                 value: item.name,
                 label: item.name,
             }))
         );
-    }, [transactionCategory]);
+    }, [transactionCategory, data.type]);
 
     return (
         <form onSubmit={handleSubmit}>
@@ -78,7 +88,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
                 <label htmlFor="date" className="block mb-1">
                     Date
                 </label>
-                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD" format={"YYYY-MM-DD"} value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
+                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD, if not set will be current date" format={"YYYY-MM-DD"} value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
             </div>
 
             <div className="mb-3">
@@ -143,7 +153,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
                 />
             </div>
 
-            <div className="mb-3 flex justify-end">
+            <div className="flex justify-end mb-3">
                 <Button type="primary" htmlType="submit" className="w-full md:w-auto" disabled={sending}>
                     {sending ? "Saving..." : "Submit"}
                 </Button>

@@ -3,7 +3,7 @@ import { Button, message, Popconfirm, Space, Table, Tag, Typography } from "antd
 import { DeleteOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
-const TableTransaction = ({ transactionData = [], stored = null }) => {
+const TableTransaction = ({ transactionData = [], executed = null }) => {
     const [dataSource, setDataSource] = useState([]);
 
     const handleDelete = (id) => {
@@ -17,7 +17,7 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
             if (response.ok) {
                 message.success("Transaction deleted successfully");
 
-                stored(id);
+                executed(id);
             } else {
                 message.error("Failed to delete transaction");
             }
@@ -79,7 +79,7 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <Popconfirm title="Are you sure delete this transaction? Your balance will be adjusted" onConfirm={() => handleDelete(record.key)} okText="Yes" cancelText="No">
+                    <Popconfirm title="Are you sure cancel this transaction? Your balance will be adjusted" onConfirm={() => handleDelete(record.key)} okText="Yes" cancelText="No">
                         <Button className="px-0" type="primary" danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
@@ -89,7 +89,7 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
 
     return (
         <>
-            <div className="overflow-x-auto w-full">
+            <div className="w-full overflow-x-auto">
                 <Table dataSource={dataSource} columns={columns} pagination={false} rowHoverable={true} scroll={{ x: "max-content" }} />
             </div>
         </>

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Card, Col, message, Modal, Row, Select, Skeleton } from "antd";
+import { Card, Col, message, Modal, Row, Select, Skeleton, Switch } from "antd";
 import TableTransaction from "../Component/TableTransaction";
 import FormTransaction from "../Component/FormTransaction";
 import { useEffect, useState } from "react";
@@ -19,12 +19,13 @@ const Home = () => {
     const { Option } = Select;
     const [selectedAccount, setSelectedAccount] = useState("");
     const [transactionData, setTransactionData] = useState([]);
-    const [stored, setStored] = useState(null);
+    const [executed, setExecuted] = useState(null);
+    const [chartMode, setChartMode] = useState(false);
 
     const [modalCreateAccount, setModalCreateAccount] = useState(false);
 
     const handleTransaction = (data) => {
-        setStored(data);
+        setExecuted(data);
     };
 
     const handleChangeAccount = (value) => {
@@ -99,7 +100,7 @@ const Home = () => {
         if (createAccount) {
             setModalCreateAccount(true);
         }
-    }, [searchParams, stored]);
+    }, [searchParams, executed]);
 
     useEffect(() => {
         getCategories();
@@ -119,7 +120,6 @@ const Home = () => {
                 .then((response) => response.json())
                 .then((data) => {
                     setTransactionData(data.data);
-
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -127,7 +127,7 @@ const Home = () => {
                     message.error("Failed fetching data. Please try again later.");
                 });
         }
-    }, [selectedAccount, stored]);
+    }, [selectedAccount, executed]);
 
     return (
         <>
@@ -144,13 +144,13 @@ const Home = () => {
                 <FormCreateAccount closeModal={() => setModalCreateAccount(false)} />
             </Modal>
 
-            <div className="bg-slate-100 min-h-screen px-4">
+            <div className="min-h-screen px-4 bg-slate-100">
                 <Row>
-                    <Col span={24} className="gutter-row p-2">
-                        <div className="text-center text-2xl font-bold py-4">
+                    <Col span={24} className="p-2 gutter-row">
+                        <div className="py-4 text-2xl font-bold text-center">
                             <h2>Pockets</h2>
                         </div>
-                        <div className="mb-3 md:w-96 mx-auto">
+                        <div className="mx-auto mb-3 md:w-96">
                             {loadingAccount && <Skeleton.Input className="mb-2" active={true} size="large" block={true} />}
 
                             {!loadingAccount && (
@@ -166,7 +166,7 @@ const Home = () => {
                                 >
                                     {accounts.map((item, index) => (
                                         <Option value={item.id} key={index}>
-                                            <div className="flex justify-between items-center">
+                                            <div className="flex items-center justify-between">
                                                 <div className="p-0 m-0">
                                                     <p className="p-0 m-0 -mb-3">{item.name}</p>
                                                     <span className="text-sm text-gray-400">{item.description}</span>
@@ -181,14 +181,24 @@ const Home = () => {
                     </Col>
                 </Row>
                 <Row>
-                    <Col span={24} md={12} className="gutter-row p-2">
+                    <Col span={24} md={12} className="p-2 gutter-row">
                         <Card bordered={true}>
-                            {loading && <Skeleton.Input className="mb-2 py-10" active={true} size="large" block={true} />}
+                            <div className="inline space-x-2">
+                                <span>Details</span>
+                                <Switch
+                                    checked={chartMode}
+                                    onChange={(value) => {
+                                        setChartMode(value);
+                                    }}
+                                />
+                                <span>Summary</span>
+                            </div>
+                            {loading && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
 
-                            {!loading && <PieChart data={transactionData} />}
+                            {!loading && <PieChart data={transactionData} chartMode={chartMode} />}
                         </Card>
                     </Col>
-                    <Col span={24} md={12} className="gutter-row p-2 mx-auto">
+                    <Col span={24} md={12} className="p-2 mx-auto gutter-row">
                         <Card bordered={true}>
                             {loading && (
                                 <>
@@ -198,17 +208,17 @@ const Home = () => {
                                 </>
                             )}
 
-                            {!loading && <FormTransaction transactionCategory={transactionCategory} stored={(data) => handleTransaction(data)} />}
+                            {!loading && <FormTransaction transactionCategory={transactionCategory} executed={(data) => handleTransaction(data)} />}
                         </Card>
                     </Col>
                 </Row>
                 <Row>
-                    <Col className="gutter-row p-2" span={24}>
+                    <Col className="p-2 gutter-row" span={24}>
                         <div className="mx-auto">
                             <Card bordered={true}>
-                                {loading && <Skeleton.Input className="mb-2 py-10" active={true} size="large" block={true} />}
+                                {loading && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
 
-                                {!loading && <TableTransaction transactionData={transactionData} stored={(id) => handleTransaction(id)} />}
+                                {!loading && <TableTransaction transactionData={transactionData} executed={(id) => handleTransaction(id)} />}
                             </Card>
                         </div>
                     </Col>
