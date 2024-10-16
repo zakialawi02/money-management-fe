@@ -16,7 +16,7 @@ const PrivateRoute = ({ children }) => {
                 }
 
                 // Request to the backend to verify token
-                const response = await fetch(`http://localhost:8000/api/v1/`, {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

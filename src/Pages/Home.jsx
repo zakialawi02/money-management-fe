@@ -34,7 +34,7 @@ const Home = () => {
 
     const getAccount = async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/v1/accounts", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/accounts`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -58,7 +58,7 @@ const Home = () => {
 
     const getCategories = async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/v1/transactions_category", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions_category`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -109,7 +109,7 @@ const Home = () => {
         setLoading(true);
         const accountId = searchParams.get("accountId");
         if (accountId) {
-            fetch(`http://localhost:8000/api/v1/transactions?account_id=${accountId}`, {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions?account_id=${accountId}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

@@ -28,7 +28,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
             data.account_id = accountId;
         }
 
-        fetch("http://localhost:8000/api/v1/transactions", {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -78,7 +78,7 @@ const FormTransaction = ({ transactionCategory, stored = null }) => {
                 <label htmlFor="date" className="block mb-1">
                     Date
                 </label>
-                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD" value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
+                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD" format={"YYYY-MM-DD"} value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
             </div>
 
             <div className="mb-3">

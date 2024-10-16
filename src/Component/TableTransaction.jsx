@@ -7,7 +7,7 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
     const [dataSource, setDataSource] = useState([]);
 
     const handleDelete = (id) => {
-        fetch(`http://localhost:8000/api/v1/transactions/${id}`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -52,7 +52,7 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
             title: "Amount",
             dataIndex: "amount",
             key: "amount",
-            render: (amount, record) => <Typography.Text style={{ color: record.type === "expense" ? "red" : "green" }}>{amount}</Typography.Text>,
+            render: (amount, record) => <Typography.Text style={{ color: record.type === "expense" ? "red" : "green" }}>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(amount)}</Typography.Text>,
         },
         {
             title: "Category",
@@ -89,7 +89,9 @@ const TableTransaction = ({ transactionData = [], stored = null }) => {
 
     return (
         <>
-            <Table dataSource={dataSource} columns={columns} pagination={false} scroll={{ y: 240 }} />
+            <div className="overflow-x-auto w-full">
+                <Table dataSource={dataSource} columns={columns} pagination={false} rowHoverable={true} scroll={{ x: "max-content" }} />
+            </div>
         </>
     );
 };

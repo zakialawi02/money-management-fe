@@ -16,7 +16,7 @@ const FormCreateAccount = ({ closeModal = null }) => {
     const createAccount = (event) => {
         event.preventDefault();
 
-        fetch("http://localhost:8000/api/v1/accounts", {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/accounts`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

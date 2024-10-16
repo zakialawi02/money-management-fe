@@ -11,7 +11,7 @@ const Login = () => {
     const onFinish = async (values) => {
         setLoading(true);
         try {
-            const response = await axios.post("http://localhost:8000/api/auth/login", values);
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, values);
             localStorage.setItem("authToken", response.data.token);
             message.success("Login successful!");
             navigate("/");
@@ -27,7 +27,7 @@ const Login = () => {
             const authToken = localStorage.getItem("authToken");
             if (authToken) {
                 // Request to the backend to verify token
-                const response = await fetch("http://localhost:8000/api/v1", {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
