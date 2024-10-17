@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Card, Col, message, Modal, Row, Select, Skeleton, Switch } from "antd";
+import { Card, Col, DatePicker, message, Modal, Row, Select, Skeleton, Switch } from "antd";
 import TableTransaction from "../Component/TableTransaction";
 import FormTransaction from "../Component/FormTransaction";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PieChart from "../Component/PieChart";
 import FormCreateAccount from "../Component/FormCreateAccount";
+import dayjs from "dayjs";
 message.config({
     maxCount: 2,
 });
@@ -22,6 +23,7 @@ const Home = () => {
     const [executed, setExecuted] = useState(null);
     const [chartMode, setChartMode] = useState(false);
 
+    const [currentDate, setCurrentDate] = useState(dayjs());
     const [modalCreateAccount, setModalCreateAccount] = useState(false);
 
     const handleTransaction = (data) => {
@@ -43,13 +45,13 @@ const Home = () => {
                 },
             });
             const data = await response.json();
-            if (data.data.length === 0) {
-                message.error("No account found. Please create an account first.");
-                setSearchParams({ createAccount: true });
-                setLoadingAccount(false);
-                return;
+            if (data.data?.length >= 0) {
+                return data;
             }
-            return data;
+            message.error("No account found. Please create an account first.");
+            setSearchParams({ createAccount: true });
+            setLoadingAccount(false);
+            return;
         } catch (error) {
             console.error(error);
             message.error("Failed fetching data. Please try again later.");
@@ -78,7 +80,6 @@ const Home = () => {
 
     useEffect(() => {
         const accountId = searchParams.get("accountId");
-
         if (accountId) {
             getAccount().then((res) => {
                 const accounts = res.data;
@@ -100,6 +101,11 @@ const Home = () => {
         if (createAccount) {
             setModalCreateAccount(true);
         }
+
+        const dateParams = searchParams.get("date");
+        if (dateParams) {
+            setCurrentDate(dayjs(dateParams));
+        }
     }, [searchParams, executed]);
 
     useEffect(() => {
@@ -109,8 +115,9 @@ const Home = () => {
     useEffect(() => {
         setLoading(true);
         const accountId = searchParams.get("accountId");
+        const dateParams = searchParams.get("date");
         if (accountId) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions?account_id=${accountId}`, {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions?account_id=${accountId}&date=${dateParams ?? ""}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -127,7 +134,7 @@ const Home = () => {
                     message.error("Failed fetching data. Please try again later.");
                 });
         }
-    }, [selectedAccount, executed]);
+    }, [selectedAccount, currentDate, executed]);
 
     return (
         <>
@@ -184,6 +191,18 @@ const Home = () => {
                     <Col span={24} md={12} className="p-2 gutter-row">
                         <Card bordered={true}>
                             <div className="inline space-x-2">
+                                <DatePicker
+                                    onChange={(date, dateString) => {
+                                        const newParams = new URLSearchParams(searchParams);
+                                        newParams.set("date", dateString);
+                                        setSearchParams(newParams);
+                                        setCurrentDate(dateString);
+                                    }}
+                                    picker="month"
+                                    format="YYYY-MM"
+                                    value={dayjs(currentDate)}
+                                />
+
                                 <span>Details</span>
                                 <Switch
                                     checked={chartMode}

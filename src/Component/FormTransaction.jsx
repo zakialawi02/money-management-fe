@@ -65,16 +65,16 @@ const FormTransaction = ({ transactionCategory, executed = null }) => {
     useEffect(() => {
         let filteredArray;
         if (data.type === "income") {
-            filteredArray = transactionCategory.filter(function (item) {
+            filteredArray = transactionCategory?.filter(function (item) {
                 return item.name !== "Uang Masuk";
             });
         } else if (data.type === "expense") {
-            filteredArray = transactionCategory.filter(function (item) {
+            filteredArray = transactionCategory?.filter(function (item) {
                 return item.name !== "Uang Keluar";
             });
         }
         setCategory(
-            filteredArray.map((item) => ({
+            filteredArray?.map((item) => ({
                 key: item.id,
                 value: item.name,
                 label: item.name,
@@ -148,7 +148,7 @@ const FormTransaction = ({ transactionCategory, executed = null }) => {
                     options={category}
                     optionLabelProp="label"
                     labelInValue
-                    value={category.find((item) => item.key === data.transactions_category_id)}
+                    value={category?.find((item) => item.key === data.transactions_category_id)}
                     onChange={(value) => setData({ ...data, transactions_category_id: value.key })}
                 />
             </div>

@@ -26,7 +26,17 @@ const PieChart = ({ data = [], chartMode = true }) => {
                 },
             }));
         } else {
-            A = data.map((item) => ({
+            const mergedDataByCategory = data.reduce((acc, item) => {
+                const existingItem = acc.find((el) => el.category.name === item.category.name);
+                if (existingItem) {
+                    existingItem.amount += item.amount;
+                } else {
+                    acc.push({ category: item.category, amount: item.amount });
+                }
+                return acc;
+            }, []);
+
+            A = mergedDataByCategory.map((item) => ({
                 value: item.amount,
                 name: item.category.name,
             }));
