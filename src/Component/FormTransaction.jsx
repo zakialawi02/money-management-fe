@@ -64,11 +64,11 @@ const FormTransaction = ({ transactionCategory, executed = null }) => {
 
     useEffect(() => {
         let filteredArray;
-        if (data.type === "income") {
+        if (data.type === "expense") {
             filteredArray = transactionCategory?.filter(function (item) {
                 return item.name !== "Uang Masuk";
             });
-        } else if (data.type === "expense") {
+        } else if (data.type === "income") {
             filteredArray = transactionCategory?.filter(function (item) {
                 return item.name !== "Uang Keluar";
             });

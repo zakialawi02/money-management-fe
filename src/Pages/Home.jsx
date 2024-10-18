@@ -25,6 +25,7 @@ const Home = () => {
 
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [modalCreateAccount, setModalCreateAccount] = useState(false);
+    const [expenseTotal, setExpenseTotal] = useState(0);
 
     const handleTransaction = (data) => {
         setExecuted(data);
@@ -81,20 +82,40 @@ const Home = () => {
     useEffect(() => {
         const accountId = searchParams.get("accountId");
         if (accountId) {
-            getAccount().then((res) => {
-                const accounts = res.data;
-                const selected = accounts?.find((acc) => acc.id === accountId);
-                setAccounts(accounts);
-                setSelectedAccount(selected?.id);
-                setLoadingAccount(false);
-            });
+            getAccount()
+                .then((res) => {
+                    const accounts = res.data;
+                    const selected = accounts?.find((acc) => acc.id === accountId);
+                    if (!selected) {
+                        message.error("Account not found. Please try again or create an account first.");
+                        return;
+                    }
+                    setAccounts(accounts);
+                    setSelectedAccount(selected?.id);
+                    setLoadingAccount(false);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    message.error("Failed fetching data. Please try again later.");
+                })
+                .finally(() => {
+                    setLoadingAccount(false);
+                });
         } else {
-            getAccount().then((res) => {
-                setAccounts(res.data);
-                setSelectedAccount(res.data[0].id);
-                setSearchParams({ accountId: res.data[0].id });
-                setLoadingAccount(false);
-            });
+            getAccount()
+                .then((res) => {
+                    setAccounts(res.data);
+                    setSelectedAccount(res.data[0].id);
+                    setSearchParams({ accountId: res.data[0].id });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setModalCreateAccount(true);
+                    setSearchParams({ createAccount: true });
+                })
+                .finally(() => {
+                    setLoadingAccount(false);
+                });
         }
 
         const createAccount = searchParams.get("createAccount");
@@ -115,7 +136,7 @@ const Home = () => {
     useEffect(() => {
         setLoading(true);
         const accountId = searchParams.get("accountId");
-        const dateParams = searchParams.get("date");
+        const dateParams = searchParams.get("date") ?? currentDate.format("YYYY-MM");
         if (accountId) {
             fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/transactions?account_id=${accountId}&date=${dateParams ?? ""}`, {
                 method: "GET",
@@ -127,6 +148,7 @@ const Home = () => {
                 .then((response) => response.json())
                 .then((data) => {
                     setTransactionData(data.data);
+                    setExpenseTotal(data.total_amount.expense);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -175,7 +197,7 @@ const Home = () => {
                                         <Option value={item.id} key={index}>
                                             <div className="flex items-center justify-between">
                                                 <div className="p-0 m-0">
-                                                    <p className="p-0 m-0 -mb-3">{item.name}</p>
+                                                    <p className="p-0 m-0 -mb-1">{item.name}</p>
                                                     <span className="text-sm text-gray-400">{item.description}</span>
                                                 </div>
                                                 <span>Rp. {item.balance}</span>
@@ -190,27 +212,40 @@ const Home = () => {
                 <Row>
                     <Col span={24} md={12} className="p-2 gutter-row">
                         <Card bordered={true}>
-                            <div className="inline space-x-2">
-                                <DatePicker
-                                    onChange={(date, dateString) => {
-                                        const newParams = new URLSearchParams(searchParams);
-                                        newParams.set("date", dateString);
-                                        setSearchParams(newParams);
-                                        setCurrentDate(dateString);
-                                    }}
-                                    picker="month"
-                                    format="YYYY-MM"
-                                    value={dayjs(currentDate)}
-                                />
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="space-x-1 space-y-2">
+                                    <DatePicker
+                                        onChange={(date, dateString) => {
+                                            const newParams = new URLSearchParams(searchParams);
+                                            newParams.set("date", dateString);
+                                            setSearchParams(newParams);
+                                            setCurrentDate(dateString);
+                                        }}
+                                        picker="month"
+                                        allowClear={false}
+                                        format="YYYY-MM"
+                                        value={dayjs(currentDate)}
+                                    />
+                                    <span>{dayjs().format("MMMM YYYY") ?? dayjs(searchParams.get("date")).format("MMMM YYYY")}</span>
 
-                                <span>Details</span>
-                                <Switch
-                                    checked={chartMode}
-                                    onChange={(value) => {
-                                        setChartMode(value);
-                                    }}
-                                />
-                                <span>Summary</span>
+                                    <div className="block items-center space-x-1">
+                                        <span>Details</span>
+                                        <Switch
+                                            checked={chartMode}
+                                            onChange={(value) => {
+                                                setChartMode(value);
+                                            }}
+                                        />
+                                        <span>Summary</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-x-2">
+                                    <div className="border-2 px-2 rounded-md h-14 pr-5 border-slate-300">
+                                        <p className="text-sm font-semibold">Total Expense</p>
+                                        <p>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(expenseTotal)}</p>
+                                    </div>
+                                </div>
                             </div>
                             {loading && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
 
