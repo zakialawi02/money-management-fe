@@ -4,6 +4,7 @@ import { Button, DatePicker, Input, InputNumber, message, Select } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
 
 const FormTransaction = ({ transactionCategory, executed = null }) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -88,7 +89,14 @@ const FormTransaction = ({ transactionCategory, executed = null }) => {
                 <label htmlFor="date" className="block mb-1">
                     Date
                 </label>
-                <DatePicker id="date" className="w-full" placeholder="Select Date YYYY-MM-DD, if not set will be current date" format={"YYYY-MM-DD"} value={data.date} onChange={(dateString) => setData({ ...data, date: dateString })} />
+                <DatePicker
+                    id="date"
+                    className="w-full"
+                    placeholder="Select Date YYYY-MM-DD, if not set will be current date"
+                    format={"YYYY-MM-DD"}
+                    value={data.date ? dayjs(data.date) : undefined}
+                    onChange={(date) => setData({ ...data, date: date ? date.format("YYYY-MM-DD") : "" })}
+                />
             </div>
 
             <div className="mb-3">

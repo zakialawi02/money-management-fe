@@ -127,6 +127,8 @@ const Home = () => {
         if (dateParams) {
             setCurrentDate(dayjs(dateParams));
         }
+
+        setExecuted(null);
     }, [searchParams, executed]);
 
     useEffect(() => {
@@ -134,7 +136,7 @@ const Home = () => {
     }, [accounts]);
 
     useEffect(() => {
-        setLoading(true);
+        setLoadingAccount(true);
         const accountId = searchParams.get("accountId");
         const dateParams = searchParams.get("date") ?? currentDate.format("YYYY-MM");
         if (accountId) {
@@ -149,7 +151,7 @@ const Home = () => {
                 .then((data) => {
                     setTransactionData(data.data);
                     setExpenseTotal(data.total_amount.expense);
-                    setLoading(false);
+                    setLoadingAccount(false);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -212,7 +214,7 @@ const Home = () => {
                 <Row>
                     <Col span={24} md={12} className="p-2 gutter-row">
                         <Card bordered={true}>
-                            <div className="flex items-start justify-between gap-3">
+                            <div className="flex flex-col lg:flex-row items-start justify-between gap-3">
                                 <div className="space-x-1 space-y-2">
                                     <DatePicker
                                         onChange={(date, dateString) => {
@@ -226,7 +228,7 @@ const Home = () => {
                                         format="YYYY-MM"
                                         value={dayjs(currentDate)}
                                     />
-                                    <span>{dayjs().format("MMMM YYYY") ?? dayjs(searchParams.get("date")).format("MMMM YYYY")}</span>
+                                    <span>{dayjs(currentDate).format("MMMM YYYY") ?? dayjs(searchParams.get("date")).format("MMMM YYYY")}</span>
 
                                     <div className="block items-center space-x-1">
                                         <span>Details</span>
@@ -240,16 +242,16 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-x-2">
+                                <div className="space-x-2 mx-auto lg:mx-0 w-full lg:w-auto">
                                     <div className="border-2 px-2 rounded-md h-14 pr-5 border-slate-300">
                                         <p className="text-sm font-semibold">Total Expense</p>
                                         <p>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(expenseTotal)}</p>
                                     </div>
                                 </div>
                             </div>
-                            {loading && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
+                            {loadingAccount && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
 
-                            {!loading && <PieChart data={transactionData} chartMode={chartMode} />}
+                            {!loadingAccount && <PieChart data={transactionData} chartMode={chartMode} />}
                         </Card>
                     </Col>
                     <Col span={24} md={12} className="p-2 mx-auto gutter-row">
@@ -270,9 +272,9 @@ const Home = () => {
                     <Col className="p-2 gutter-row" span={24}>
                         <div className="mx-auto">
                             <Card bordered={true}>
-                                {loading && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
+                                {loadingAccount && <Skeleton.Input className="py-10 mb-2" active={true} size="large" block={true} />}
 
-                                {!loading && <TableTransaction transactionData={transactionData} executed={(id) => handleTransaction(id)} />}
+                                {!loadingAccount && <TableTransaction transactionData={transactionData} executed={(id) => handleTransaction(id)} />}
                             </Card>
                         </div>
                     </Col>
