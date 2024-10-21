@@ -79,44 +79,39 @@ const Home = () => {
         }
     };
 
+    const fetchAccountData = async (accountId) => {
+        try {
+            const { data: accounts } = await getAccount();
+            if (accountId) {
+                const selected = accounts?.find((acc) => acc.id === accountId);
+                if (!selected) {
+                    message.error("Account not found. Please try again or create an account first.");
+                    return;
+                }
+
+                setAccounts(accounts);
+                setSelectedAccount(selected.id);
+            } else {
+                // If no accountId provided, use the first account
+                setAccounts(accounts);
+                setSelectedAccount(accounts[0].id);
+                setSearchParams({ accountId: accounts[0].id });
+            }
+        } catch (error) {
+            console.error("Failed to fetch account data:", error);
+            if (!accountId) {
+                // Only show create account modal if no accountId was provided
+                setModalCreateAccount(true);
+                setSearchParams({ createAccount: true });
+            } else {
+                message.error("Failed fetching data. Please try again later.");
+            }
+        }
+    };
+
     useEffect(() => {
         const accountId = searchParams.get("accountId");
-        if (accountId) {
-            getAccount()
-                .then((res) => {
-                    const accounts = res.data;
-                    const selected = accounts?.find((acc) => acc.id === accountId);
-                    if (!selected) {
-                        message.error("Account not found. Please try again or create an account first.");
-                        return;
-                    }
-                    setAccounts(accounts);
-                    setSelectedAccount(selected?.id);
-                    setLoadingAccount(false);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    message.error("Failed fetching data. Please try again later.");
-                })
-                .finally(() => {
-                    setLoadingAccount(false);
-                });
-        } else {
-            getAccount()
-                .then((res) => {
-                    setAccounts(res.data);
-                    setSelectedAccount(res.data[0].id);
-                    setSearchParams({ accountId: res.data[0].id });
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setModalCreateAccount(true);
-                    setSearchParams({ createAccount: true });
-                })
-                .finally(() => {
-                    setLoadingAccount(false);
-                });
-        }
+        fetchAccountData(accountId);
 
         const createAccount = searchParams.get("createAccount");
         if (createAccount) {
@@ -151,11 +146,13 @@ const Home = () => {
                 .then((data) => {
                     setTransactionData(data.data);
                     setExpenseTotal(data.total_amount.expense);
-                    setLoadingAccount(false);
                 })
                 .catch((error) => {
                     console.error(error);
                     message.error("Failed fetching data. Please try again later.");
+                })
+                .finally(() => {
+                    setLoadingAccount(false);
                 });
         }
     }, [selectedAccount, currentDate, executed]);
@@ -214,7 +211,7 @@ const Home = () => {
                 <Row>
                     <Col span={24} md={12} className="p-2 gutter-row">
                         <Card bordered={true}>
-                            <div className="flex flex-col lg:flex-row items-start justify-between gap-3">
+                            <div className="flex flex-col items-start justify-between gap-3 lg:flex-row">
                                 <div className="space-x-1 space-y-2">
                                     <DatePicker
                                         onChange={(date, dateString) => {
@@ -230,7 +227,7 @@ const Home = () => {
                                     />
                                     <span>{dayjs(currentDate).format("MMMM YYYY") ?? dayjs(searchParams.get("date")).format("MMMM YYYY")}</span>
 
-                                    <div className="block items-center space-x-1">
+                                    <div className="items-center block space-x-1">
                                         <span>Details</span>
                                         <Switch
                                             checked={chartMode}
@@ -242,8 +239,8 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-x-2 mx-auto lg:mx-0 w-full lg:w-auto">
-                                    <div className="border-2 px-2 rounded-md h-14 pr-5 border-slate-300">
+                                <div className="w-full mx-auto space-x-2 lg:mx-0 lg:w-auto">
+                                    <div className="px-2 pr-5 border-2 rounded-md h-14 border-slate-300">
                                         <p className="text-sm font-semibold">Total Expense</p>
                                         <p>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(expenseTotal)}</p>
                                     </div>
