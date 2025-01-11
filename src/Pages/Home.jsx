@@ -26,6 +26,7 @@ const Home = () => {
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [modalCreateAccount, setModalCreateAccount] = useState(false);
     const [expenseTotal, setExpenseTotal] = useState(0);
+    const [weeklyExpense, setWeeklyExpense] = useState(0);
 
     const handleTransaction = (data) => {
         setExecuted(data);
@@ -146,6 +147,7 @@ const Home = () => {
                 .then((data) => {
                     setTransactionData(data.data);
                     setExpenseTotal(data.total_amount.expense);
+                    setWeeklyExpense(data.total_amount.weekly_expense);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -239,8 +241,13 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                <div className="w-full mx-auto space-x-2 lg:mx-0 lg:w-auto">
-                                    <div className="px-2 pr-5 border-2 rounded-md h-14 border-slate-300">
+                                <div className="w-full mx-auto space-x-2 space-y-1 lg:mx-0 lg:w-auto">
+                                    <div className="px-2 border-2 rounded-md h-14 border-slate-300">
+                                        <p className="text-sm font-semibold">Weekly Expense</p>
+                                        <p>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(weeklyExpense)}</p>
+                                    </div>
+
+                                    <div className="px-2 border-2 rounded-md h-14 border-slate-300">
                                         <p className="text-sm font-semibold">Total Expense</p>
                                         <p>{new Intl.NumberFormat("en-ID", { style: "currency", currency: "IDR" }).format(expenseTotal)}</p>
                                     </div>
