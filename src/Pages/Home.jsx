@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Card, Col, DatePicker, message, Modal, Row, Select, Skeleton, Switch } from "antd";
+import { Button, Card, Col, DatePicker, message, Modal, Row, Select, Skeleton, Switch } from "antd";
 import TableTransaction from "../Component/TableTransaction";
 import FormTransaction from "../Component/FormTransaction";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PieChart from "../Component/PieChart";
 import FormCreateAccount from "../Component/FormCreateAccount";
 import dayjs from "dayjs";
@@ -27,6 +27,8 @@ const Home = () => {
     const [modalCreateAccount, setModalCreateAccount] = useState(false);
     const [expenseTotal, setExpenseTotal] = useState(0);
     const [weeklyExpense, setWeeklyExpense] = useState(0);
+
+    const navigate = useNavigate();
 
     const handleTransaction = (data) => {
         setExecuted(data);
@@ -86,6 +88,11 @@ const Home = () => {
             if (accountId) {
                 const selected = accounts?.find((acc) => acc.id === accountId);
                 if (!selected) {
+                    if (accountId == "create") {
+                        setSearchParams({ createAccount: true });
+                        return;
+                    }
+
                     message.error("Account not found. Please try again or create an account first.");
                     return;
                 }
@@ -108,6 +115,33 @@ const Home = () => {
                 message.error("Failed fetching data. Please try again later.");
             }
         }
+    };
+
+    const handleExport = () => {
+        const dateParams = searchParams.get("date") ?? currentDate.format("YYYY-MM");
+        const accountId = searchParams.get("accountId");
+
+        message.info("Exporting data, please wait...");
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/account/${accountId}/report/download?date=${dateParams}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/pdf",
+                Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
+            },
+        })
+            .then((response) => response.blob())
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", `report_${accountId}_${dateParams}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+            })
+            .catch((error) => {
+                console.error("Failed to export data:", error);
+                message.error("Failed to export data. Please try again later.");
+            });
     };
 
     useEffect(() => {
@@ -177,6 +211,33 @@ const Home = () => {
             <div className="min-h-screen px-4 bg-slate-100">
                 <Row>
                     <Col span={24} className="p-2 gutter-row">
+                        <div className="flex justify-end -mb-5">
+                            <Button
+                                type="primary"
+                                danger
+                                onClick={async () => {
+                                    try {
+                                        message.info("Logging out, please wait...");
+                                        await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
+                                            },
+                                        });
+                                        localStorage.removeItem("authToken");
+                                        message.success("Logout successful");
+                                        navigate("/login");
+                                    } catch (error) {
+                                        console.error("Failed to logout:", error);
+                                        message.error("Logout failed. Please try again.");
+                                    }
+                                }}
+                            >
+                                Logout
+                            </Button>
+                        </div>
+
                         <div className="py-4 text-2xl font-bold text-center">
                             <h2>Pockets</h2>
                         </div>
@@ -205,6 +266,14 @@ const Home = () => {
                                             </div>
                                         </Option>
                                     ))}
+                                    <option value="create" key="create">
+                                        <div className="flex items-center justify-between">
+                                            <div className="p-0 m-0">
+                                                <p className="p-0 m-0 -mb-1">Create New Account</p>
+                                                <span className="text-sm text-gray-400">Create a new account</span>
+                                            </div>
+                                        </div>
+                                    </option>
                                 </Select>
                             )}
                         </div>
@@ -239,6 +308,10 @@ const Home = () => {
                                         />
                                         <span>Summary</span>
                                     </div>
+
+                                    <Button type="primary" onClick={handleExport}>
+                                        Export
+                                    </Button>
                                 </div>
 
                                 <div className="w-full mx-auto space-x-2 space-y-1 lg:mx-0 lg:w-auto">
