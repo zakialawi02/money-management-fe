@@ -8,6 +8,7 @@ import Home from "./Pages/Home.jsx";
 import Login from "./Pages/Login.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Register from "./Pages/Register.jsx";
+import StreamReport from "./Pages/StreamReport.jsx";
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")).render(
                 />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/stream-report/:id/:account_id/:date" element={<StreamReport />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import PieChart from "../Component/PieChart";
 import FormCreateAccount from "../Component/FormCreateAccount";
+import ShareButton from "../Component/ShareButton";
 import dayjs from "dayjs";
 message.config({
     maxCount: 2,
@@ -30,6 +31,10 @@ const Home = () => {
 
     const navigate = useNavigate();
 
+    const dateParams = searchParams.get("date") ?? currentDate.format("YYYY-MM");
+    const accountId = searchParams.get("accountId");
+    const [userId, setUserId] = useState(null);
+
     const handleTransaction = (data) => {
         setExecuted(data);
     };
@@ -50,6 +55,7 @@ const Home = () => {
             });
             const data = await response.json();
             if (data.data?.length >= 0) {
+                setUserId(data.data[0].pivot.user_id);
                 return data;
             }
             message.error("No account found. Please create an account first.");
@@ -118,9 +124,6 @@ const Home = () => {
     };
 
     const handleExport = () => {
-        const dateParams = searchParams.get("date") ?? currentDate.format("YYYY-MM");
-        const accountId = searchParams.get("accountId");
-
         message.info("Exporting data, please wait...");
         fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/account/${accountId}/report/download?date=${dateParams}`, {
             method: "GET",
@@ -275,6 +278,12 @@ const Home = () => {
                                         </div>
                                     </option>
                                 </Select>
+                            )}
+
+                            {!loadingAccount && (
+                                <div className="mt-5 flex justify-center">
+                                    <ShareButton userId={userId} accountId={selectedAccount} date={dateParams}></ShareButton>
+                                </div>
                             )}
                         </div>
                     </Col>
