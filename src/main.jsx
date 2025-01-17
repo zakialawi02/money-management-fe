@@ -24,7 +24,7 @@ createRoot(document.getElementById("root")).render(
                 />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/stream-report/:id/:account_id/:date" element={<StreamReport />} />
+                <Route path="/stream-report/:encryptedUrl" element={<StreamReport />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

@@ -6,9 +6,7 @@ const { Title, Text } = Typography;
 const StreamReport = () => {
     const url = window.location.pathname;
     const urlParts = url.split("/");
-    const userId = urlParts[2];
-    const accountId = urlParts[3];
-    const date = urlParts[4];
+    const encryptedUrl = urlParts[2];
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
@@ -58,9 +56,8 @@ const StreamReport = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/stream-report/${userId}/${accountId}/${date}`);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/stream-report/${encryptedUrl}`);
             const data = await response.json();
-            console.log(data.data);
             setData(data.data);
         } catch (error) {
             console.error("Error fetching stream report", error);
@@ -90,7 +87,7 @@ const StreamReport = () => {
             <Card>
                 <Space direction="vertical" style={{ width: "100%" }}>
                     <Title level={2}>Transaction Report</Title>
-                    <Title level={4}>{new Date(date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</Title>
+                    <Title level={4}>{new Date(data.date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</Title>
                     <Divider />
                     <Row gutter={16}>
                         <Col span={8}>

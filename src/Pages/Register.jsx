@@ -10,8 +10,6 @@ const Register = () => {
     const navigate = useNavigate();
 
     const handleSubmitRegister = async (values) => {
-        console.log(values);
-
         setLoading(true);
         setErrors({});
         try {
