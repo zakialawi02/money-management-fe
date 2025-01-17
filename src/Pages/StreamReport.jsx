@@ -90,7 +90,7 @@ const StreamReport = () => {
                     <Title level={4}>{new Date(data.date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</Title>
                     <Divider />
                     <Row gutter={16}>
-                        <Col span={8}>
+                        <Col span={24} md={8}>
                             <Card>
                                 <Title level={5}>User Details</Title>
                                 <p>
@@ -101,7 +101,7 @@ const StreamReport = () => {
                                 </p>
                             </Card>
                         </Col>
-                        <Col span={8}>
+                        <Col span={24} md={8}>
                             <Card>
                                 <Title level={5}>Account Details</Title>
                                 <p>
@@ -116,7 +116,7 @@ const StreamReport = () => {
                                 </p>
                             </Card>
                         </Col>
-                        <Col span={8}>
+                        <Col span={24} md={8}>
                             <Card>
                                 <Title level={5}>Total Amount</Title>
                                 <p>
@@ -133,15 +133,19 @@ const StreamReport = () => {
                     </Row>
                     <Divider />
                     <Title level={5}>Transactions</Title>
-                    <Table
-                        columns={columns}
-                        dataSource={data.transactions.map((transaction) => ({
-                            ...transaction,
-                            key: transaction.id,
-                        }))}
-                        loading={loading}
-                        // pagination={{ pageSize: 25 }}
-                    />
+                    <div className="w-full overflow-x-auto">
+                        <Table
+                            columns={columns}
+                            dataSource={data.transactions.map((transaction) => ({
+                                ...transaction,
+                                key: transaction.id,
+                            }))}
+                            loading={loading}
+                            rowHoverable={true}
+                            scroll={{ x: "max-content" }}
+                            // pagination={{ pageSize: 25 }}
+                        />
+                    </div>
                 </Space>
             </Card>
         </div>
